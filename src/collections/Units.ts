@@ -4,7 +4,7 @@ export const Units: CollectionConfig = {
   slug: 'units',
   admin: {
     useAsTitle: 'unitNumber',
-    defaultColumns: ['unitNumber', 'type', 'status', 'sqFt'],
+    defaultColumns: ['unitNumber', 'type', 'status', 'leaseType', 'building', 'sqFt', 'price.amount'],
   },
   fields: [
     {
@@ -14,52 +14,65 @@ export const Units: CollectionConfig = {
     },
     {
       name: 'type',
-      type: 'select',
+      type: 'relationship',
+      relationTo: 'categories',
       required: true,
-      options: [
-        { label: 'Retail', value: 'retail' },
-        { label: 'Office', value: 'office' },
-        { label: 'Warehouse', value: 'warehouse' },
-        { label: 'Coworking', value: 'coworking' },
-        { label: 'Storage', value: 'storage' },
-      ],
     },
     {
       name: 'status',
       type: 'select',
       defaultValue: 'available',
+      required: true,
       options: [
         { label: 'Available', value: 'available' },
         { label: 'Under Offer', value: 'under-offer' },
         { label: 'Leased', value: 'leased' },
-        { label: 'Maintenance', value: 'maintenance' },
+      ],
+    },
+    {
+      name: 'leaseType',
+      type: 'select',
+      required: true,
+      options: [
+        { label: 'NNN', value: 'nnn' },
+        { label: 'Full Service', value: 'full-service' },
+        { label: 'Modified Gross', value: 'modified-gross' },
+      ],
+    },
+    {
+      name: 'building',
+      type: 'select',
+      required: true,
+      options: [
+        { label: 'Building A', value: 'building-a' },
+        { label: 'Building B', value: 'building-b' },
+        { label: 'Annex', value: 'annex' },
       ],
     },
     {
       name: 'sqFt',
       type: 'number',
       label: 'Square Footage',
+      required: true,
+      min: 1,
     },
     {
       name: 'price',
       type: 'group',
       fields: [
-        { name: 'amount', type: 'number' },
-        {
-          name: 'frequency',
-          type: 'select',
-          options: [
-            { label: 'Monthly', value: 'monthly' },
-            { label: 'Yearly', value: 'yearly' },
-            { label: 'Per Sq Ft / Year', value: 'sqft-yearly' },
-          ],
-        },
+        { name: 'amount', type: 'number', required: true, min: 0, label: 'Monthly Rent' },
       ],
     },
     {
       name: 'floorPlan',
       type: 'upload',
       relationTo: 'media',
+    },
+    {
+      name: 'media',
+      type: 'upload',
+      relationTo: 'media',
+      hasMany: true,
     },
     {
       name: 'description',
@@ -69,11 +82,6 @@ export const Units: CollectionConfig = {
       name: 'features',
       type: 'array',
       fields: [{ name: 'feature', type: 'text' }],
-    },
-    {
-      name: 'category',
-      type: 'relationship',
-      relationTo: 'categories',
     },
   ],
 }

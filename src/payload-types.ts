@@ -69,6 +69,12 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    categories: Category;
+    units: Unit;
+    directory: Directory;
+    pages: Page;
+    leads: Lead;
+    posts: Post;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -78,13 +84,19 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    units: UnitsSelect<false> | UnitsSelect<true>;
+    directory: DirectorySelect<false> | DirectorySelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
+    leads: LeadsSelect<false> | LeadsSelect<true>;
+    posts: PostsSelect<false> | PostsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
   db: {
-    defaultIDType: string;
+    defaultIDType: number;
   };
   fallbackLocale: null;
   globals: {};
@@ -119,7 +131,7 @@ export interface UserAuthOperations {
  * via the `definition` "users".
  */
 export interface User {
-  id: string;
+  id: number;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -144,7 +156,7 @@ export interface User {
  * via the `definition` "media".
  */
 export interface Media {
-  id: string;
+  id: number;
   alt: string;
   updatedAt: string;
   createdAt: string;
@@ -160,10 +172,378 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string | null;
+  /**
+   * Landing hero title for /spaces/[category].
+   */
+  heroTitle?: string | null;
+  /**
+   * Landing hero description for /spaces/[category].
+   */
+  heroDescription?: string | null;
+  /**
+   * Optional custom background image for category landing hero.
+   */
+  heroBackgroundImage?: (number | null) | Media;
+  /**
+   * SEO and campaign content for dedicated /spaces/[category] pages.
+   */
+  marketingContent?: {
+    heroTitle?: string | null;
+    heroSubheadline?: string | null;
+    quickSpecs?:
+      | {
+          icon:
+            | 'building-2'
+            | 'package'
+            | 'shopping-bag'
+            | 'wifi'
+            | 'shield'
+            | 'users'
+            | 'truck'
+            | 'zap'
+            | 'store'
+            | 'map-pin'
+            | 'tag'
+            | 'lock'
+            | 'camera'
+            | 'star'
+            | 'check';
+          title: string;
+          subtitle?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "units".
+ */
+export interface Unit {
+  id: number;
+  unitNumber: string;
+  type: number | Category;
+  status: 'available' | 'under-offer' | 'leased';
+  leaseType: 'nnn' | 'full-service' | 'modified-gross';
+  building: 'building-a' | 'building-b' | 'annex';
+  sqFt: number;
+  price: {
+    amount: number;
+  };
+  floorPlan?: (number | null) | Media;
+  media?: (number | Media)[] | null;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  features?:
+    | {
+        feature?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "directory".
+ */
+export interface Directory {
+  id: number;
+  shopName: string;
+  logo?: (number | null) | Media;
+  unit: number | Unit;
+  category?: (number | null) | Category;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  title: string;
+  slug: string;
+  layout?:
+    | (
+        | HeroBlock
+        | InventoryGridBlock
+        | ContentBlock
+        | CoworkHeroBlock
+        | PricingCardsBlock
+        | SplitLeadSectionBlock
+        | HomeHeroBlock
+        | ServicesGridBlock
+        | FeaturedSpacesBlock
+        | StatsSectionBlock
+        | FinalCTABlock
+      )[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeroBlock".
+ */
+export interface HeroBlock {
+  title: string;
+  subtitle?: string | null;
+  image?: (number | null) | Media;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'hero';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "InventoryGridBlock".
+ */
+export interface InventoryGridBlock {
+  title: string;
+  categories?: (number | Category)[] | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'inventoryGrid';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContentBlock".
+ */
+export interface ContentBlock {
+  richText: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'content';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CoworkHeroBlock".
+ */
+export interface CoworkHeroBlock {
+  overTitle: string;
+  title: string;
+  description: string;
+  backgroundImage?: (number | null) | Media;
+  amenities?:
+    | {
+        icon: 'wifi' | 'coffee' | 'users' | 'shield' | 'clock' | 'building';
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'coworkHero';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PricingCardsBlock".
+ */
+export interface PricingCardsBlock {
+  overTitle?: string | null;
+  title: string;
+  plans: {
+    name: string;
+    price: number;
+    frequency: string;
+    features?:
+      | {
+          feature: string;
+          id?: string | null;
+        }[]
+      | null;
+    isFeatured?: boolean | null;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'pricingCards';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SplitLeadSectionBlock".
+ */
+export interface SplitLeadSectionBlock {
+  image?: (number | null) | Media;
+  overTitle?: string | null;
+  title: string;
+  description: string;
+  formTitle: string;
+  formDescription?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'splitLeadSection';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HomeHeroBlock".
+ */
+export interface HomeHeroBlock {
+  announcementText: string;
+  title: string;
+  subtitle: string;
+  backgroundImage?: (number | null) | Media;
+  primaryButtonLabel: string;
+  primaryButtonHref: string;
+  secondaryButtonLabel: string;
+  secondaryButtonHref: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'homeHero';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServicesGridBlock".
+ */
+export interface ServicesGridBlock {
+  title: string;
+  description: string;
+  items: {
+    title: string;
+    image?: (number | null) | Media;
+    href: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'servicesGrid';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FeaturedSpacesBlock".
+ */
+export interface FeaturedSpacesBlock {
+  title: string;
+  viewAllText: string;
+  viewAllHref: string;
+  bottomButtonLabel: string;
+  bottomButtonHref: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'featuredSpaces';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "StatsSectionBlock".
+ */
+export interface StatsSectionBlock {
+  title: string;
+  description: string;
+  primaryImage?: (number | null) | Media;
+  secondaryImage?: (number | null) | Media;
+  estBadge: string;
+  stats: {
+    value: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'statsSection';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FinalCTABlock".
+ */
+export interface FinalCTABlock {
+  title: string;
+  backgroundImage?: (number | null) | Media;
+  primaryButtonLabel: string;
+  primaryButtonHref: string;
+  secondaryButtonLabel: string;
+  secondaryButtonHref: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'finalCTA';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leads".
+ */
+export interface Lead {
+  id: number;
+  fullName: string;
+  email: string;
+  phone?: string | null;
+  company?: string | null;
+  /**
+   * Requested square footage from lead magnet step 2.
+   */
+  squareFootageNeeded?: number | null;
+  desiredMoveInDate?: string | null;
+  businessType?: string | null;
+  budgetRange?: string | null;
+  desiredLeaseTerm?: string | null;
+  decisionTimeline?: string | null;
+  interest?: ('office' | 'warehouse' | 'retail' | 'self-storage' | 'coworking' | 'restaurant' | 'residential') | null;
+  message?: string | null;
+  sourcePage?: string | null;
+  /**
+   * Highlighted inquiry context (e.g., unit inquiry subject line).
+   */
+  sourceMetadata?: string | null;
+  formType?: ('contact-form' | 'book-a-tour') | null;
+  status?: ('new' | 'contacted' | 'closed') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: number;
+  title: string;
+  slug: string;
+  excerpt: string;
+  categoryTag: 'news' | 'leasing' | 'community' | 'insights';
+  featuredImage?: (number | null) | Media;
+  publishedAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
-  id: string;
+  id: number;
   key: string;
   data:
     | {
@@ -180,20 +560,44 @@ export interface PayloadKv {
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: string;
+  id: number;
   document?:
     | ({
         relationTo: 'users';
-        value: string | User;
+        value: number | User;
       } | null)
     | ({
         relationTo: 'media';
-        value: string | Media;
+        value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'categories';
+        value: number | Category;
+      } | null)
+    | ({
+        relationTo: 'units';
+        value: number | Unit;
+      } | null)
+    | ({
+        relationTo: 'directory';
+        value: number | Directory;
+      } | null)
+    | ({
+        relationTo: 'pages';
+        value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'leads';
+        value: number | Lead;
+      } | null)
+    | ({
+        relationTo: 'posts';
+        value: number | Post;
       } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   updatedAt: string;
   createdAt: string;
@@ -203,10 +607,10 @@ export interface PayloadLockedDocument {
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: string;
+  id: number;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   key?: string | null;
   value?:
@@ -226,7 +630,7 @@ export interface PayloadPreference {
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: string;
+  id: number;
   name?: string | null;
   batch?: number | null;
   updatedAt: string;
@@ -271,6 +675,306 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  heroTitle?: T;
+  heroDescription?: T;
+  heroBackgroundImage?: T;
+  marketingContent?:
+    | T
+    | {
+        heroTitle?: T;
+        heroSubheadline?: T;
+        quickSpecs?:
+          | T
+          | {
+              icon?: T;
+              title?: T;
+              subtitle?: T;
+              id?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "units_select".
+ */
+export interface UnitsSelect<T extends boolean = true> {
+  unitNumber?: T;
+  type?: T;
+  status?: T;
+  leaseType?: T;
+  building?: T;
+  sqFt?: T;
+  price?:
+    | T
+    | {
+        amount?: T;
+      };
+  floorPlan?: T;
+  media?: T;
+  description?: T;
+  features?:
+    | T
+    | {
+        feature?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "directory_select".
+ */
+export interface DirectorySelect<T extends boolean = true> {
+  shopName?: T;
+  logo?: T;
+  unit?: T;
+  category?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  layout?:
+    | T
+    | {
+        hero?: T | HeroBlockSelect<T>;
+        inventoryGrid?: T | InventoryGridBlockSelect<T>;
+        content?: T | ContentBlockSelect<T>;
+        coworkHero?: T | CoworkHeroBlockSelect<T>;
+        pricingCards?: T | PricingCardsBlockSelect<T>;
+        splitLeadSection?: T | SplitLeadSectionBlockSelect<T>;
+        homeHero?: T | HomeHeroBlockSelect<T>;
+        servicesGrid?: T | ServicesGridBlockSelect<T>;
+        featuredSpaces?: T | FeaturedSpacesBlockSelect<T>;
+        statsSection?: T | StatsSectionBlockSelect<T>;
+        finalCTA?: T | FinalCTABlockSelect<T>;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeroBlock_select".
+ */
+export interface HeroBlockSelect<T extends boolean = true> {
+  title?: T;
+  subtitle?: T;
+  image?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "InventoryGridBlock_select".
+ */
+export interface InventoryGridBlockSelect<T extends boolean = true> {
+  title?: T;
+  categories?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContentBlock_select".
+ */
+export interface ContentBlockSelect<T extends boolean = true> {
+  richText?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CoworkHeroBlock_select".
+ */
+export interface CoworkHeroBlockSelect<T extends boolean = true> {
+  overTitle?: T;
+  title?: T;
+  description?: T;
+  backgroundImage?: T;
+  amenities?:
+    | T
+    | {
+        icon?: T;
+        label?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PricingCardsBlock_select".
+ */
+export interface PricingCardsBlockSelect<T extends boolean = true> {
+  overTitle?: T;
+  title?: T;
+  plans?:
+    | T
+    | {
+        name?: T;
+        price?: T;
+        frequency?: T;
+        features?:
+          | T
+          | {
+              feature?: T;
+              id?: T;
+            };
+        isFeatured?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SplitLeadSectionBlock_select".
+ */
+export interface SplitLeadSectionBlockSelect<T extends boolean = true> {
+  image?: T;
+  overTitle?: T;
+  title?: T;
+  description?: T;
+  formTitle?: T;
+  formDescription?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HomeHeroBlock_select".
+ */
+export interface HomeHeroBlockSelect<T extends boolean = true> {
+  announcementText?: T;
+  title?: T;
+  subtitle?: T;
+  backgroundImage?: T;
+  primaryButtonLabel?: T;
+  primaryButtonHref?: T;
+  secondaryButtonLabel?: T;
+  secondaryButtonHref?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServicesGridBlock_select".
+ */
+export interface ServicesGridBlockSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  items?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        href?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FeaturedSpacesBlock_select".
+ */
+export interface FeaturedSpacesBlockSelect<T extends boolean = true> {
+  title?: T;
+  viewAllText?: T;
+  viewAllHref?: T;
+  bottomButtonLabel?: T;
+  bottomButtonHref?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "StatsSectionBlock_select".
+ */
+export interface StatsSectionBlockSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  primaryImage?: T;
+  secondaryImage?: T;
+  estBadge?: T;
+  stats?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FinalCTABlock_select".
+ */
+export interface FinalCTABlockSelect<T extends boolean = true> {
+  title?: T;
+  backgroundImage?: T;
+  primaryButtonLabel?: T;
+  primaryButtonHref?: T;
+  secondaryButtonLabel?: T;
+  secondaryButtonHref?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leads_select".
+ */
+export interface LeadsSelect<T extends boolean = true> {
+  fullName?: T;
+  email?: T;
+  phone?: T;
+  company?: T;
+  squareFootageNeeded?: T;
+  desiredMoveInDate?: T;
+  businessType?: T;
+  budgetRange?: T;
+  desiredLeaseTerm?: T;
+  decisionTimeline?: T;
+  interest?: T;
+  message?: T;
+  sourcePage?: T;
+  sourceMetadata?: T;
+  formType?: T;
+  status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts_select".
+ */
+export interface PostsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  excerpt?: T;
+  categoryTag?: T;
+  featuredImage?: T;
+  publishedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
