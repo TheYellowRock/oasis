@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { Clock3, Mail, MapPin, Phone } from 'lucide-react'
 import { getPayload } from 'payload'
 import config from '@payload-config'
@@ -94,7 +95,9 @@ export default async function ContactPage() {
           <h3 className="text-2xl font-semibold tracking-tight text-neutral-900">Send Us a Message</h3>
           <p className="mt-2 text-sm text-neutral-600">Tell us what you need and our leasing team will follow up.</p>
           <div className="mt-6">
-            <ContactLeadForm categories={categoryOptions} />
+            <Suspense fallback={<p className="text-sm text-neutral-600">Loading form...</p>}>
+              <ContactLeadForm categories={categoryOptions} />
+            </Suspense>
           </div>
         </div>
       </section>
